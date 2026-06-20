@@ -6,6 +6,7 @@ A sophisticated detective adventure with AI-powered mystery generation!
 import streamlit as st
 import random
 import json
+import os
 import google.generativeai as genai
 
 # ===== PAGE CONFIGURATION =====
@@ -92,8 +93,20 @@ st.markdown("""
 
 # ===== GEMINI AI SETUP =====
 def setup_gemini():
-    """Setup Gemini API"""
-    api_key = "AQ.Ab8RN6LlKm_tRSxVRh0n5ejNUpjsNwWzQzpgyYw2w8EDSmLG2A"
+    """Setup Gemini API with secure key management"""
+    # Try to get API key from environment variables first, then Streamlit secrets
+    api_key = os.environ.get("GEMINI_API_KEY")
+    
+    if not api_key:
+        try:
+            api_key = st.secrets.get("gemini_api_key")
+        except:
+            pass
+    
+    if not api_key:
+        st.error("Gemini API key not found. Please set the GEMINI_API_KEY environment variable or add it to Streamlit secrets.")
+        return False
+    
     try:
         genai.configure(api_key=api_key)
         return True
